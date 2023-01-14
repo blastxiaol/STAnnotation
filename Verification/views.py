@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from Regist.models import Users
 from Annotation.models import Descriptions
 from Upload.models import Instances, Frames
+from Regist.models import Users
 from django.db.models import Q
 import json
 import numpy as np
@@ -110,5 +111,8 @@ def post_data(request):
     
     if description.veritified >= 2:
         description.set_passed(1)
+        user_id = description.user_id
+        user = Users.objects.get(id=user_id)
+        user.successAnnotated()
 
     return JsonResponse({'result': True, 'information': '提交成功\n'})
