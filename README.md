@@ -16,6 +16,6 @@ python manage.py migrate
 ```
 ## Run server
 ```
-python manage.py runserver 5500
+python manage.py runserver 0.0.0.0:5500
 ```
 
