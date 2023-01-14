@@ -26,9 +26,10 @@ def upload(request):
     file = json.load(open(filepath))
     # 上传场景数据
     try:
-        scene = Scenes.objects.get(location=location, date=date)
+        scene = Scenes.objects.get(annotation_path=filepath)
     except:
         scene = Scenes()
+        scene.annotation_path = filepath
         scene.location = location
         scene.date = date
         scene.save()

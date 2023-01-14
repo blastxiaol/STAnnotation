@@ -5,6 +5,7 @@ class Scenes(models.Model):
     id = models.AutoField(primary_key=True, verbose_name='id')
     location = models.CharField(max_length=128, verbose_name='location')
     date = models.DateTimeField(verbose_name='date')
+    annotation_path = models.FileField(unique=True, verbose_name='annotation_path')
     
     def __str__(self):
         return f"Scene {self.location}-({self.date})"
