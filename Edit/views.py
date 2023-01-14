@@ -95,7 +95,6 @@ def submit_data(request):
     if user.password != data['password']:
         return JsonResponse({'result': False, 'information': '用户权限不足\n'})
     ##############################################
-    print(data)
     description_id = data['description_id']
     description = Descriptions.objects.get(id=description_id)
     description.action = data['action']

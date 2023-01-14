@@ -24,7 +24,9 @@ def get_data(request):
     ##############################################
     descriptions_list = Descriptions.objects.filter(~(Q(user_id=user.id)|Q(vertified_users=user)), passed=0)
     try:
-        description = descriptions_list[0]
+        index = np.random.randint(0, len(descriptions_list))
+        description = descriptions_list[index]
+        # description = descriptions_list[0]
     except:
         return JsonResponse({'result': False, 'information': '当前没有可用的描述验证\n'})
     instance_id = description.instance_id
@@ -107,12 +109,12 @@ def post_data(request):
     if data['pass']:
         description.add_veritified()
     else:
+        if description.passed == 1:            
+            user.failedAnnotated()
         description.set_passed(-1)
-    
+
     if description.veritified >= 2:
         description.set_passed(1)
-        user_id = description.user_id
-        user = Users.objects.get(id=user_id)
         user.successAnnotated()
 
     return JsonResponse({'result': True, 'information': '提交成功\n'})

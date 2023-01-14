@@ -22,6 +22,10 @@ class Users(models.Model):
         self.annotations += 1
         self.save(update_fields=['annotations'])
     
+    def failedAnnotated(self):
+        self.annotations -= 1
+        self.save(update_fields=['annotations'])
+    
     def __str__(self):
         return self.name
     
