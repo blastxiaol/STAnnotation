@@ -16,16 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-backend = 'backend'
+backend = ''
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Applications URL
     path('', include(('Index.urls', 'Index'), namespace='Index')),
-    path(f'{backend}/login/', include(('Login.urls', 'Login'), namespace='Login')),
-    path(f'{backend}/regist/', include(('Regist.urls', 'Regist'), namespace='Regist')),
-    path(f'{backend}/upload/', include(('Upload.urls', 'Upload'), namespace='Upload')),
-    path(f'{backend}/annotation/', include(('Annotation.urls', 'Annotation'), namespace='Annotation')),
-    path(f'{backend}/verification/', include(('Verification.urls', 'Verification'), namespace='Verification')),
-    path(f'{backend}/edit/', include(('Edit.urls', 'Edit'), namespace='Edit')),
+    path(f'{backend}login/', include(('Login.urls', 'Login'), namespace='Login')),
+    path(f'{backend}regist/', include(('Regist.urls', 'Regist'), namespace='Regist')),
+    path(f'{backend}upload/', include(('Upload.urls', 'Upload'), namespace='Upload')),
+    path(f'{backend}annotation/', include(('Annotation.urls', 'Annotation'), namespace='Annotation')),
+    path(f'{backend}verification/', include(('Verification.urls', 'Verification'), namespace='Verification')),
+    path(f'{backend}edit/', include(('Edit.urls', 'Edit'), namespace='Edit')),
+    path(f'{backend}download/', include(('Download.urls', 'Download'), namespace='Download')),
 ]

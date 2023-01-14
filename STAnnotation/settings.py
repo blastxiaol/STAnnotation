@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-kekq03a=6(p!4v02e2*oavvg-%ycyj$%12!8a!*k4u33&qmosh
 DEBUG = True
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'Annotation',
     'Verification',
     'Edit',
+    'Download',
 ]
 
 MIDDLEWARE = [
