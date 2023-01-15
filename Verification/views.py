@@ -38,7 +38,8 @@ def get_data(request):
     box2d = instance.box2d
     box2d = np.array([int(_) for _ in box2d.split(',')]).reshape(-1, 2)
     image = cv2.imread(image_path)
-    image_base = cv2.imencode('.jpg', image)[1] #  image为cv2.imread后的结果
+    image_rs = cv2.resize(image.copy(), (768, 480))
+    image_base = cv2.imencode('.jpg', image_rs)[1] #  image为cv2.imread后的结果
     image_stream = 'data:image/jpeg;base64,'+base64.encodebytes(image_base).decode()    
 
     target_id = instance_id
@@ -50,6 +51,7 @@ def get_data(request):
         object_key = instance.object_key
         box2d = np.array([int(_) for _ in box2d.split(',')]).reshape(-1, 2)
         image_box = draw_projected_box3d(image.copy(), box2d, (0, 255, 0), 2)
+        image_box = cv2.resize(image_box, (768, 480))
         image_box = cv2.imencode('.jpg', image_box)[1] #  image为cv2.imread后的结果
         image_stream_box = 'data:image/jpeg;base64,'+base64.encodebytes(image_box).decode() 
         object_image_list.append({
@@ -63,7 +65,8 @@ def get_data(request):
         prev_frame = Frames.objects.get(id=prev_frame_id)
         prev_image_path = str(prev_frame.img_path)
         prev_image = cv2.imread(prev_image_path)
-        prev_image_stream = cv2.imencode('.jpg', prev_image)[1] #  image为cv2.imread后的结果
+        prev_image_rs = cv2.resize(prev_image.copy(), (768, 480))
+        prev_image_stream = cv2.imencode('.jpg', prev_image_rs)[1] #  image为cv2.imread后的结果
         image_stream2 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image_stream).decode()
         prev_prev_frame_id = prev_frame.prev_frame_id
     else:
@@ -80,6 +83,7 @@ def get_data(request):
                 prev_box2d = prev_instance.box2d
                 prev_box2d = np.array([int(_) for _ in prev_box2d.split(',')]).reshape(-1, 2)
                 prev_image_box2d = draw_projected_box3d(prev_image_box2d, prev_box2d, (0, 255, 0), 2)
+                prev_image_box2d = cv2.resize(prev_image_box2d, (768, 480))
                 prev_image_box2d_stream = cv2.imencode('.jpg', prev_image_box2d)[1] #  image为cv2.imread后的结果
                 prev_image_box2d_stream = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image_box2d_stream).decode()
                 image_stream2_list.append({'image': prev_image_box2d_stream})
@@ -92,7 +96,8 @@ def get_data(request):
         prev_prev_frame = Frames.objects.get(id=prev_prev_frame_id)
         prev_prev_image_path = str(prev_prev_frame.img_path)
         prev_prev_image = cv2.imread(prev_prev_image_path)
-        prev_prev_image_stream = cv2.imencode('.jpg', prev_prev_image)[1] #  image为cv2.imread后的结果
+        prev_prev_image_rs = cv2.resize(prev_prev_image.copy(), (768, 480))
+        prev_prev_image_stream = cv2.imencode('.jpg', prev_prev_image_rs)[1] #  image为cv2.imread后的结果
         image_stream1 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image_stream).decode()
     else:
         image_stream1 = {'image': 'error'}
@@ -107,6 +112,7 @@ def get_data(request):
                 prev_prev_box2d = prev_prev_instance.box2d
                 prev_prev_box2d = np.array([int(_) for _ in prev_prev_box2d.split(',')]).reshape(-1, 2)
                 prev_prev_image_box2d = draw_projected_box3d(prev_prev_image_box2d, prev_prev_box2d, (0, 255, 0), 2)
+                prev_prev_image_box2d = cv2.resize(prev_prev_image_box2d, (768, 480))
                 prev_prev_image_box2d_stream = cv2.imencode('.jpg', prev_prev_image_box2d)[1] #  image为cv2.imread后的结果
                 prev_prev_image_box2d_stream = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image_box2d_stream).decode()
                 image_stream1_list.append({'image': prev_prev_image_box2d_stream})
