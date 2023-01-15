@@ -43,6 +43,7 @@ def get_instance(request):
     description = Descriptions.objects.get(id=description_id)
     instance_id = description.instance_id
     instance = Instances.objects.get(id=instance_id)
+    object_key = instance.object_key
     frame_id = instance.frame_id
     frame = Frames.objects.get(id=frame_id)
     image_path = str(frame.img_path)
@@ -58,6 +59,13 @@ def get_instance(request):
         prev_frame = Frames.objects.get(id=prev_frame_id)
         prev_image_path = str(prev_frame.img_path)
         prev_image = cv2.imread(prev_image_path)
+        try:
+            prev_instance = Instances.objects.get(object_key=object_key, frame_id=prev_frame_id)
+            prev_box2d = prev_instance.box2d
+            prev_box2d = np.array([int(_) for _ in prev_box2d.split(',')]).reshape(-1, 2)
+            prev_image = draw_projected_box3d(prev_image, prev_box2d, (0, 255, 0), 2)
+        except:
+            pass
         prev_image = cv2.imencode('.jpg', prev_image)[1] #  image为cv2.imread后的结果
         image_stream2 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image).decode()
         prev_prev_frame_id = prev_frame.prev_frame_id
@@ -68,6 +76,13 @@ def get_instance(request):
         prev_prev_frame = Frames.objects.get(id=prev_prev_frame_id)
         prev_prev_image_path = str(prev_prev_frame.img_path)
         prev_prev_image = cv2.imread(prev_prev_image_path)
+        try:
+            prev_prev_instance = Instances.objects.get(object_key=object_key, frame_id=prev_prev_frame_id)
+            prev_prev_box2d = prev_prev_instance.box2d
+            prev_prev_box2d = np.array([int(_) for _ in prev_prev_box2d.split(',')]).reshape(-1, 2)
+            prev_prev_image = draw_projected_box3d(prev_prev_image, prev_prev_box2d, (0, 255, 0), 2)
+        except:
+            pass
         prev_prev_image = cv2.imencode('.jpg', prev_prev_image)[1] #  image为cv2.imread后的结果
         image_stream1 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image).decode()
     else:

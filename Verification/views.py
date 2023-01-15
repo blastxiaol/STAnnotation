@@ -43,30 +43,11 @@ def get_data(request):
 
     target_id = instance_id
 
-    prev_frame_id = frame.prev_frame_id
-    if prev_frame_id:
-        prev_frame = Frames.objects.get(id=prev_frame_id)
-        prev_image_path = str(prev_frame.img_path)
-        prev_image = cv2.imread(prev_image_path)
-        prev_image = cv2.imencode('.jpg', prev_image)[1] #  image为cv2.imread后的结果
-        image_stream2 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image).decode()
-        prev_prev_frame_id = prev_frame.prev_frame_id
-    else:
-        prev_prev_frame_id = None
-        image_stream2 = 'error'
-    if prev_prev_frame_id:
-        prev_prev_frame = Frames.objects.get(id=prev_prev_frame_id)
-        prev_prev_image_path = str(prev_prev_frame.img_path)
-        prev_prev_image = cv2.imread(prev_prev_image_path)
-        prev_prev_image = cv2.imencode('.jpg', prev_prev_image)[1] #  image为cv2.imread后的结果
-        image_stream1 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image).decode()
-    else:
-        image_stream1 = 'error'
-
     object_list = Instances.objects.filter(frame_id=frame_id)
     object_image_list = []
     for instance in object_list:
         box2d = instance.box2d
+        object_key = instance.object_key
         box2d = np.array([int(_) for _ in box2d.split(',')]).reshape(-1, 2)
         image_box = draw_projected_box3d(image.copy(), box2d, (0, 255, 0), 2)
         image_box = cv2.imencode('.jpg', image_box)[1] #  image为cv2.imread后的结果
@@ -74,18 +55,80 @@ def get_data(request):
         object_image_list.append({
             'id': instance.id,
             'image': image_stream_box,
+            'object_key': object_key,
         })
+        
+    prev_frame_id = frame.prev_frame_id
+    if prev_frame_id:
+        prev_frame = Frames.objects.get(id=prev_frame_id)
+        prev_image_path = str(prev_frame.img_path)
+        prev_image = cv2.imread(prev_image_path)
+        prev_image_stream = cv2.imencode('.jpg', prev_image)[1] #  image为cv2.imread后的结果
+        image_stream2 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image_stream).decode()
+        prev_prev_frame_id = prev_frame.prev_frame_id
+    else:
+        prev_prev_frame_id = None
+        image_stream2 = {'image': 'error'}
+
+    image_stream2_list = []
+    for object_info in object_image_list:
+        object_instance_key = object_info['object_key']
+        if prev_frame_id:
+            prev_image_box2d = prev_image.copy()
+            try:
+                prev_instance = Instances.objects.get(object_key=object_instance_key, frame_id=prev_frame_id)
+                prev_box2d = prev_instance.box2d
+                prev_box2d = np.array([int(_) for _ in prev_box2d.split(',')]).reshape(-1, 2)
+                prev_image_box2d = draw_projected_box3d(prev_image_box2d, prev_box2d, (0, 255, 0), 2)
+                prev_image_box2d_stream = cv2.imencode('.jpg', prev_image_box2d)[1] #  image为cv2.imread后的结果
+                prev_image_box2d_stream = 'data:image/jpeg;base64,'+base64.encodebytes(prev_image_box2d_stream).decode()
+                image_stream2_list.append({'image': prev_image_box2d_stream})
+            except:
+                image_stream2_list.append({'image': image_stream2})
+        else:
+            image_stream2_list.append({'image': 'error'})        
+    
+    if prev_prev_frame_id:
+        prev_prev_frame = Frames.objects.get(id=prev_prev_frame_id)
+        prev_prev_image_path = str(prev_prev_frame.img_path)
+        prev_prev_image = cv2.imread(prev_prev_image_path)
+        prev_prev_image_stream = cv2.imencode('.jpg', prev_prev_image)[1] #  image为cv2.imread后的结果
+        image_stream1 = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image_stream).decode()
+    else:
+        image_stream1 = {'image': 'error'}
+
+    image_stream1_list = []
+    for object_info in object_image_list:
+        object_instance_key = object_info['object_key']
+        if prev_prev_frame_id:
+            prev_prev_image_box2d = prev_prev_image.copy()
+            try:
+                prev_prev_instance = Instances.objects.get(object_key=object_instance_key, frame_id=prev_prev_frame_id)
+                prev_prev_box2d = prev_prev_instance.box2d
+                prev_prev_box2d = np.array([int(_) for _ in prev_prev_box2d.split(',')]).reshape(-1, 2)
+                prev_prev_image_box2d = draw_projected_box3d(prev_prev_image_box2d, prev_prev_box2d, (0, 255, 0), 2)
+                prev_prev_image_box2d_stream = cv2.imencode('.jpg', prev_prev_image_box2d)[1] #  image为cv2.imread后的结果
+                prev_prev_image_box2d_stream = 'data:image/jpeg;base64,'+base64.encodebytes(prev_prev_image_box2d_stream).decode()
+                image_stream1_list.append({'image': prev_prev_image_box2d_stream})
+            except:
+                image_stream1_list.append({'image': image_stream1})
+        else:
+            image_stream1_list.append({'image': 'error'})
 
     output = {
         'result': True,
         'description_id': description.id,
         'sentence': description.sentence,
         'action': description.action,
-        'image':[
-            {'image': image_stream1},
-            {'image': image_stream2},
-            ],
-        'object': [{'id': -1, 'image': image_stream}] + object_image_list,
+        # 'image':[
+        #     image_stream1_list,
+        #     image_stream2_list,
+        #     ],
+        'object': [
+            [{'image': image_stream1}] + image_stream1_list,
+            [{'image': image_stream2}] + image_stream2_list,
+            [{'id': -1, 'image': image_stream}] + object_image_list,
+        ],
         'target_id': target_id,
         }
     return JsonResponse(output)
