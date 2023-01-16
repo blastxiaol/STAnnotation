@@ -12,9 +12,10 @@ from .utils import draw_projected_box3d
 # Create your views here.
 def add(request):
     if request.method == 'GET':
-        instance_list = Instances.objects.filter(described__lt=2)
+        instance_list = Instances.objects.filter(described__lt=2, hard__lt=5)
         if len(instance_list) <= 0:
             output = {
+            'result': False,
             'instance_id': -1,
             'image':[
                 {'image': 'error'},
@@ -73,6 +74,7 @@ def add(request):
         else:
             image_stream1 = 'error'
         output = {
+            'result': True,
             'instance_id': instance_id,
             'image':[
                 {'image': image_stream1},
@@ -99,6 +101,8 @@ def add(request):
             instance = Instances.objects.get(id=instance_id)
         except:
             return JsonResponse({'result': False, 'information': 'Instance错误\n'})
+        
+        valid_input = 0
         for i, description_element in enumerate(descriptions_list):
             sentence = description_element['description']
             action = description_element['action']
@@ -119,5 +123,31 @@ def add(request):
                 # description.vertified_users.add(user)
                 description.vertified_users.clear()
                 instance.add_description()
+                user.addSentence()
+                valid_input += 1
+
+        if valid_input == 0:
+            return JsonResponse({'result': False, 'information': f'数据为空\n'})
                 
         return JsonResponse({'result': True})
+
+def ishard(request):
+    data = json.loads(request.body)
+    # ################# 权限判断 ################# #
+    try:
+        user = Users.objects.get(id=data['user']['user_id'])
+    except:
+        return JsonResponse({'result': False, 'information': '用户权限不足\n'})
+
+    if user.password != data['user']['password']:
+        return JsonResponse({'result': False, 'information': '用户权限不足\n'})
+    ##############################################
+    instance_id = data['instance_id']
+    try:
+        instance = Instances.objects.get(id=instance_id)
+    except:
+        return JsonResponse({'result': False, 'information': 'Instance错误\n'})
+
+    instance.ishard()
+
+    return JsonResponse({'result': True, 'information': ''})

@@ -36,13 +36,27 @@ class Instances(models.Model):
     box3d = models.TextField(verbose_name='box3d')
     box2d = models.TextField(verbose_name='box2d')
     occlusion = models.BooleanField(verbose_name='occlusoin')
-    described = models.IntegerField(verbose_name='described')
+    described = models.IntegerField(default=0, verbose_name='存在描述')
+    valid_described = models.IntegerField(default=0, verbose_name='有效描述')
+    hard = models.IntegerField(default=0, verbose_name='困难对象')
     
     def __str__(self):
         return f"instance {self.id}"
     
     class Meta:
         verbose_name_plural = 'Instances'
+
+    def ishard(self):
+        self.hard += 1
+        self.save(update_fields=['hard'])
+    
+    def add_valid(self):
+        self.valid_described += 1
+        self.save(update_fields=['valid_described'])
+    
+    def minus_valid(self):
+        self.valid_described -= 1
+        self.save(update_fields=['valid_described'])
 
     def add_description(self):
         self.described += 1

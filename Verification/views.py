@@ -154,16 +154,20 @@ def post_data(request):
     
     description_id = data['description_id']
     description = Descriptions.objects.get(id=description_id)
+    annotator = Users.objects.get(id=description.user_id)
+    instance = Instances.objects.get(id=description.instance_id)
     description.vertified_users.add(user.id)
     if data['pass']:
         description.add_veritified()
     else:
         if description.passed == 1:            
-            user.failedAnnotated()
+            annotator.failedAnnotated()
+            instance.minus_valid()
         description.set_passed(-1)
 
     if description.veritified >= 2:
         description.set_passed(1)
-        user.successAnnotated()
-
+        annotator.successAnnotated()
+        instance.add_valid()
+    user.addVerifications()
     return JsonResponse({'result': True, 'information': '提交成功\n'})

@@ -27,6 +27,7 @@ def login(request):
         'name': user.name,
         'authority': user.authority,
         'annotations': user.annotations,
+        'sentences': user.sentences,
         'password': user.password,
     }
     return JsonResponse(output)
