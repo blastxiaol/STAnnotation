@@ -121,6 +121,11 @@ def get_data(request):
         else:
             image_stream1_list.append({'image': 'error'})
 
+    if not isinstance(image_stream1, dict):
+        image_stream1 = {'image': image_stream1}
+    if not isinstance(image_stream2, dict):
+        image_stream2 = {'image': image_stream2}
+
     output = {
         'result': True,
         'description_id': description.id,
