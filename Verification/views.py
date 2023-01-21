@@ -131,8 +131,8 @@ def get_data(request):
         #     image_stream2_list,
         #     ],
         'object': [
-            [{'image': image_stream1}] + image_stream1_list,
-            [{'image': image_stream2}] + image_stream2_list,
+            [image_stream1] + image_stream1_list,
+            [image_stream2] + image_stream2_list,
             [{'id': -1, 'image': image_stream}] + object_image_list,
         ],
         'target_id': target_id,
